@@ -4,6 +4,7 @@ import { TopBar } from '@/components/layout/TopBar'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { InviteMemberButton } from '@/components/members/InviteMemberButton'
+import { DeleteMemberButton } from '@/components/members/DeleteMemberButton'
 import { formatCurrency, formatNumber, formatDateShort } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import type { Profile, UnitLedger, FundStats } from '@/types'
@@ -79,7 +80,7 @@ export default async function MembersPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-surface-border">
-                    {['Member', 'Status', 'Units', 'Invested', 'Withdrawn', 'Current Value', 'P&L', 'Ownership', 'Joined'].map(h => (
+                    {['Member', 'Status', 'Units', 'Invested', 'Withdrawn', 'Current Value', 'P&L', 'Ownership', 'Joined', ''].map(h => (
                       <th key={h} className="text-left px-5 py-3 text-xs font-medium text-text-muted uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -123,11 +124,14 @@ export default async function MembersPage() {
                       <td className="px-5 py-3.5 text-text-muted text-xs whitespace-nowrap">
                         {formatDateShort(member.joined_date)}
                       </td>
+                      <td className="px-5 py-3.5">
+                        <DeleteMemberButton memberId={member.id} memberName={member.full_name} />
+                      </td>
                     </tr>
                   ))}
                   {memberRows.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="px-5 py-10 text-center text-text-muted">
+                      <td colSpan={10} className="px-5 py-10 text-center text-text-muted">
                         No members yet. Invite your first investor.
                       </td>
                     </tr>

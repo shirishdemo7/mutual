@@ -185,6 +185,35 @@ export async function recordWithdrawal(formData: FormData) {
   }
 }
 
+export async function deleteTransaction(txId: string) {
+  const supabase = await createClient()
+  try {
+    await requireAdmin(supabase)
+    const { error } = await supabase.from('transactions').delete().eq('id', txId)
+    if (error) return { error: error.message }
+    revalidatePath('/transactions')
+    revalidatePath('/admin')
+    revalidatePath('/dashboard')
+    return { success: true }
+  } catch (err) {
+    return { error: (err as Error).message }
+  }
+}
+
+export async function deleteAllTransactions() {
+  const supabase = await createClient()
+  try {
+    await requireAdmin(supabase)
+    await supabase.from('transactions').delete().gte('created_at', '2000-01-01')
+    revalidatePath('/transactions')
+    revalidatePath('/admin')
+    revalidatePath('/dashboard')
+    return { success: true }
+  } catch (err) {
+    return { error: (err as Error).message }
+  }
+}
+
 export async function updateFundValue(formData: FormData) {
   const supabase = await createClient()
 

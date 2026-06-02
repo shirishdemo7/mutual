@@ -77,6 +77,34 @@ export async function inviteMember(formData: FormData) {
   return { success: true, userId: newUser.user.id }
 }
 
+export async function deleteMember(memberId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'super_admin') return { error: 'Forbidden' }
+  if (memberId === user.id) return { error: 'Cannot delete your own account' }
+
+  const adminClient = await createAdminClient()
+
+  await adminClient.from('transactions').delete().eq('member_id', memberId)
+  await adminClient.from('unit_ledger').delete().eq('member_id', memberId)
+
+  const { error } = await adminClient.auth.admin.deleteUser(memberId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/members')
+  revalidatePath('/admin')
+  revalidatePath('/transactions')
+  return { success: true }
+}
+
 export async function updateMember(memberId: string, formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { TopBar } from '@/components/layout/TopBar'
 import { Card, CardContent } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
 import {
   formatCurrency, formatNumber, formatDate,
   TRANSACTION_LABELS, TRANSACTION_COLORS,
@@ -10,6 +9,8 @@ import {
 import { cn } from '@/lib/utils'
 import { ArrowUpRight, ArrowDownLeft, Activity } from 'lucide-react'
 import type { Profile, Transaction } from '@/types'
+import { DeleteTransactionButton } from '@/components/transactions/DeleteTransactionButton'
+import { DeleteAllTransactionsButton } from '@/components/transactions/DeleteAllTransactionsButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,13 +48,12 @@ export default async function TransactionsPage() {
     ? transactions
     : transactions.filter(tx => tx.member_id === user.id)
 
-  const typeGroups = Array.from(new Set(transactions.map(t => t.transaction_type)))
-
   return (
     <div>
       <TopBar
         title="Transactions"
-        subtitle={`${visibleTx.length} records — immutable audit log`}
+        subtitle={`${visibleTx.length} records`}
+        actions={isAdmin ? <DeleteAllTransactionsButton /> : undefined}
       />
 
       <div className="p-6">
@@ -71,6 +71,7 @@ export default async function TransactionsPage() {
                     <th className="text-left px-5 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Notes</th>
                     <th className="text-left px-5 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">Date</th>
                     {isAdmin && <th className="text-left px-5 py-3 text-xs font-medium text-text-muted uppercase tracking-wider">By</th>}
+                    {isAdmin && <th className="px-5 py-3" />}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-surface-border">
@@ -127,6 +128,11 @@ export default async function TransactionsPage() {
                         {isAdmin && (
                           <td className="px-5 py-3.5 text-text-muted text-xs">
                             {(tx.performer as unknown as { full_name: string })?.full_name ?? '—'}
+                          </td>
+                        )}
+                        {isAdmin && (
+                          <td className="px-3 py-3.5">
+                            <DeleteTransactionButton txId={tx.id} />
                           </td>
                         )}
                       </tr>
