@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 
 async function requireAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser()
@@ -189,7 +189,8 @@ export async function deleteTransaction(txId: string) {
   const supabase = await createClient()
   try {
     await requireAdmin(supabase)
-    const { error } = await supabase.from('transactions').delete().eq('id', txId)
+    const adminClient = await createAdminClient()
+    const { error } = await adminClient.from('transactions').delete().eq('id', txId)
     if (error) return { error: error.message }
     revalidatePath('/transactions')
     revalidatePath('/admin')
@@ -204,7 +205,8 @@ export async function deleteAllTransactions() {
   const supabase = await createClient()
   try {
     await requireAdmin(supabase)
-    await supabase.from('transactions').delete().gte('created_at', '2000-01-01')
+    const adminClient = await createAdminClient()
+    await adminClient.from('transactions').delete().gte('created_at', '2000-01-01')
     revalidatePath('/transactions')
     revalidatePath('/admin')
     revalidatePath('/dashboard')
