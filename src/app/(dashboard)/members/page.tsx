@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { InviteMemberButton } from '@/components/members/InviteMemberButton'
 import { DeleteMemberButton } from '@/components/members/DeleteMemberButton'
+import { EditMemberButton } from '@/components/members/EditMemberButton'
 import { formatCurrency, formatNumber, formatDateShort } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import type { Profile, UnitLedger, FundStats } from '@/types'
@@ -125,7 +126,10 @@ export default async function MembersPage() {
                         {formatDateShort(member.joined_date)}
                       </td>
                       <td className="px-5 py-3.5">
-                        <DeleteMemberButton memberId={member.id} memberName={member.full_name} />
+                        <div className="flex items-center gap-2">
+                          <EditMemberButton member={member} />
+                          <DeleteMemberButton memberId={member.id} memberName={member.full_name} />
+                        </div>
                       </td>
                     </tr>
                   ))}
